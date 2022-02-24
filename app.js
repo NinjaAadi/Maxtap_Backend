@@ -9,6 +9,8 @@ const connectDb = require("./database/database");
 //Connect to the db
 connectDb();
 
+//Server as a static folder
+app.use(express.static("public/images"));
 //Middleware function for file upload
 app.use(fileUpload());
 

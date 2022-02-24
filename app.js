@@ -4,11 +4,14 @@ const fileUpload = require("express-fileupload");
 const env = require("dotenv").config({ path: path.join(__dirname, ".env") });
 const logger = require("./logger/logger");
 const app = express();
+var cors = require("cors");
 //Bring the database
 const connectDb = require("./database/database");
 //Connect to the db
 connectDb();
 
+//Cross Origin
+app.use(cors());
 //Server as a static folder
 /*Set static folder */
 app.use(express.static(path.join(__dirname, "public/images")));

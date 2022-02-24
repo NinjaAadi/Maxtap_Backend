@@ -11,7 +11,7 @@ connectDb();
 
 //Server as a static folder
 /*Set static folder */
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public/images")));
 //Middleware function for file upload
 app.use(fileUpload());
 

@@ -3,7 +3,12 @@ const { isValid } = require("../valitators/check_valid_value");
 const isValidId = require("../valitators/valid_object");
 //Bring the category schema
 const categorySchema = require("../models/category");
+const req = require("express/lib/request");
 
+//Bring the ad Schema and the advertiser schema
+const adSchema = require("../models/ads");
+const advertiserSchema = require("../models/advertiser");
+const ads = require("../models/ads");
 /*
 @desc: Add a category
 @access: Public
@@ -153,6 +158,10 @@ exports.deleteCategory = async (req, res, next) => {
         "There is no category with this id"
       );
     }
+
+    //Delete all the ads and the advertisers with this category
+    await adSchema.deleteMany({ category: categoryId });
+    await advertiserSchema.deleteMany({ category: categoryId });
     //Return the result
     return res.status(200).json({
       success: true,

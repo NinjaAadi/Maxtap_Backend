@@ -8,7 +8,10 @@ const uploadAndGetFileName = async (image, id, pathToSave) => {
 
   //Move to the directory
   image.mv(`${pathToSave}/${image.name}`, async (err) => {
-    if (err) console.log(err);
+    if (err) {
+      console.log("reaching here"); 
+      console.log(err);
+    }
   });
 
   return fileName;

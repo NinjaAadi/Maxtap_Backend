@@ -236,14 +236,10 @@ exports.deleteAdvertiser = async (req, res, next) => {
       );
     }
     //Delete all the ads associated with this advertiser
-    const allAdsWithThisCreator = await adSchema.find({
+    const allAdsWithThisCreator = await adSchema.deleteMany({
       creator: advertiserId,
     });
-    for (let i = 0; i < allAdsWithThisCreator.length; i++) {
-      const adId = allAdsWithThisCreator[i];
-      const ad = await adSchema.findOneAndDelete({ _id: adId });
-      await removeFile(ad.imageUrl, process.env.FILE_UPLOAD_PATH);
-    }
+
     return res.status(200).json({
       success: true,
       messege:

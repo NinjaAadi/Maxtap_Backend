@@ -2,6 +2,7 @@ const errorHandler = require("../error/error");
 const {
   isValid,
   isValidTimeString,
+  isUrlValid,
 } = require("../valitators/check_valid_value");
 const isValidId = require("../valitators/valid_object");
 const isValidFile = require("../valitators/file_validator");
@@ -23,17 +24,16 @@ const advertiserSchema = require("../models/advertiser");
 exports.addAd = async (req, res, next) => {
   try {
     //Get the ad image from req.body
-    const adImage = req.files ? req.files.file : null;
 
-    const { startTime, endTime, category, creator } = req.body;
+    const { startTime, endTime, category, creator, imageUrl } = req.body;
     //Validate the image
-    if (isValidFile(adImage) == false) {
+    if (isUrlValid(imageUrl) == false) {
       return await errorHandler(
         res,
         next,
         null,
         "Error adding an ad in addAd function",
-        "Please provide a valid ad image"
+        "Please provide a valid ad image url"
       );
     }
     //Validate all the fields
@@ -76,26 +76,13 @@ exports.addAd = async (req, res, next) => {
       );
     }
     //Create the add
-    const ad = await adSchema.create({
+    await adSchema.create({
       category: category,
       startTime: startTime,
       endTime: endTime,
       creator: creator,
+      imageUrl: imageUrl,
     });
-
-    //Get the ad id and save the file to the location
-    const adId = ad._id;
-
-    //Get the filename
-    const adImageURl = await getFileName(
-      adImage,
-      adId,
-      process.env.FILE_UPLOAD_PATH
-    );
-
-    //Update the image URL
-    ad.imageUrl = adImageURl;
-    await ad.save();
 
     //Return the result
     return res.status(200).json({
@@ -134,19 +121,15 @@ exports.updateAd = async (req, res, next) => {
       );
     }
 
-    //Get the ad image from req.body
-    const adImage = req.files ? req.files.file : null;
-    const isImageToBeUpdated = true;
-    if (adImage == null) isImageToBeUpdated = false;
-    const { startTime, endTime, category, creator } = req.body;
+    const { startTime, endTime, category, creator, imageUrl } = req.body;
     //Validate the image
-    if (isValidFile(adImage) == false && isImageToBeUpdated) {
+    if (isUrlValid(imageUrl) == false) {
       return await errorHandler(
         res,
         next,
         null,
         "Error updating an ad in updateAd function",
-        "Please provide a valid ad image"
+        "Please provide a valid ad image url"
       );
     }
     //Validate all the fields
@@ -191,27 +174,12 @@ exports.updateAd = async (req, res, next) => {
     //Fetch the ad
     const ad = await adSchema.findOne({ _id: adId });
 
-    //If the image is to be updated then delete the old image and insert the new one
-    if (isImageToBeUpdated) {
-      await removeFile(ad.imageUrl, process.env.FILE_UPLOAD_PATH);
-
-      //Get the filename
-      const adImageURl = await getFileName(
-        adImage,
-        adId,
-        process.env.FILE_UPLOAD_PATH
-      );
-
-      //Update the image URL
-      ad.imageUrl = adImageURl;
-      await ad.save();
-    }
-
     //Update the other result
     ad.category = category;
     ad.startTime = startTime;
     ad.endTime = endTime;
     ad.creator = creator;
+    ad.imageUrl = imageUrl;
     ad.save();
     //Return the result
     return res.status(200).json({
@@ -318,8 +286,6 @@ exports.deleteAd = async (req, res, next) => {
         "There is no ad with this id present"
       );
     }
-    //Delete the file
-    await removeFile(ad.imageUrl, process.env.FILE_UPLOAD_PATH);
     return res.status(200).json({
       success: true,
       messege: "Ad deleted successfully!",

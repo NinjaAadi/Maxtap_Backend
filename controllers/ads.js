@@ -5,7 +5,6 @@ const {
   isUrlValid,
 } = require("../valitators/check_valid_value");
 const isValidId = require("../valitators/valid_object");
-const isValidFile = require("../valitators/file_validator");
 const getFileName = require("../helper/upload_and_get_filename");
 const removeFile = require("../helper/remove_file");
 //Bring the add Schema
@@ -108,6 +107,7 @@ exports.updateAd = async (req, res, next) => {
   try {
     //Get the adId from the url and validate it
     const adId = req.query.adId;
+    console.log(isValidId(adId));
     if (
       isValidId(adId) == false ||
       (await adSchema.findOne({ _id: adId })) == null
@@ -122,6 +122,8 @@ exports.updateAd = async (req, res, next) => {
     }
 
     const { startTime, endTime, category, creator, imageUrl } = req.body;
+    console.log(imageUrl);
+    console.log(isUrlValid(imageUrl));
     //Validate the image
     if (isUrlValid(imageUrl) == false) {
       return await errorHandler(

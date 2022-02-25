@@ -122,7 +122,13 @@ exports.updateAd = async (req, res, next) => {
     }
 
     const { startTime, endTime, category, creator, imageUrl } = req.body;
-    console.log(imageUrl);
+    console.log(
+      req.body.startTime,
+      req.body.endTime,
+      category,
+      creator,
+      imageUrl
+    );
     console.log(isUrlValid(imageUrl));
     //Validate the image
     if (isUrlValid(imageUrl) == false) {
